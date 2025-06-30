@@ -1,0 +1,148 @@
+/* DARK MODE STYLES FOR RUG PULL EARLY WARNING SYSTEM */
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a; /* dark navy */
+  color: #f8fafc;            /* soft light text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: #1e293b; /* slate gray */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+h1 {
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+input {
+  padding: 12px;
+  width: 70%;
+  max-width: 400px;
+  margin-right: 10px;
+  background-color: #334155;
+  color: #f1f5f9;
+  border: 1px solid #475569;
+  border-radius: 6px;
+}
+
+input::placeholder {
+  color: #94a3b8;
+}
+
+button {
+  padding: 12px 20px;
+  font-weight: bold;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:disabled {
+  background-color: #9f1239;
+  cursor: not-allowed;
+}
+
+.risk-score {
+  color: #f87171;
+  font-size: 2.2rem;
+  margin-top: 2rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.warnings {
+  margin-top: 1.5rem;
+}
+
+.warning-box {
+  background-color: #7f1d1d;
+  border-left: 6px solid #ef4444;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #fee2e2;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.action-box {
+  margin-top: 2rem;
+  background-color: #78350f;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 2px solid #f59e0b;
+  color: #fef3c7;
+}
+
+.action-box h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #fde68a;
+  font-size: 1.2rem;
+}
+
+.action-box ul {
+  padding-left: 1.5rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  color: white;
+  user-select: none;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.similar-scams {
+  margin-top: 2rem;
+  background-color: #312e81;
+  padding: 16px 20px;
+  border-radius: 8px;
+  color: #c7d2fe;
+}
+
+.similar-scams h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #818cf8;
+}
