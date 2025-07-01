@@ -3,20 +3,17 @@ import './App.css';
 
 const fetchTrendingToken = async () => {
   try {
-    const res = await fetch("https://public-api.dextools.io/trending/pairs?chain=ether&interval=1h");
+    const res = await fetch("https://rugpull-backend.onrender.com/trending");
     const data = await res.json();
-    const pairs = data.data || [];
+    if (!Array.isArray(data) || data.length === 0) return null;
 
-    if (pairs.length === 0) return null;
-
-    // Random pair, get token contract address
-    const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
-    return randomPair.token.contract;
+    return data[Math.floor(Math.random() * data.length)];
   } catch (err) {
-    console.error("Failed to fetch trending token:", err);
+    console.error("Backend trending fetch failed:", err);
     return null;
   }
 };
+
 
 
 function App() {
