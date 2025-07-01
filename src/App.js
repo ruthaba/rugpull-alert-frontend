@@ -1,109 +1,103 @@
-import React, { useState } from 'react';
-import './App.css';
-
-const fetchTrendingToken = async () => {
-  try {
-    const res = await fetch("https://rugpull-backend.onrender.com/trending");
-    const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) return null;
-
-    return data[Math.floor(Math.random() * data.length)];
-  } catch (err) {
-    console.error("Backend trending fetch failed:", err);
-    return null;
-  }
-};
-
-
+import React, { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [contract, setContract] = useState('');
-  const [response, setResponse] = useState(null);
+  const [contract, setContract] = useState("");
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState('normal'); // 'normal' or 'roulette'
 
-  const backendUrl = 'https://rugpull-backend.onrender.com/analyze';
-
-  const handleCheck = async (target) => {
+  const handleCheck = async () => {
     setLoading(true);
-    setResponse(null);
+    setResult(null);
     try {
-      const res = await fetch(backendUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contract: target }),
+      //const res = await fetch("http://127.0.0.1:5003/analyze", {
+      const res = await fetch("https://rugpull-backend.onrender.com/analyze", {
+
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contract }),
       });
       const data = await res.json();
-      setResponse(data);
-    } catch (err) {
-      alert("Failed to fetch — backend might be sleeping or down.");
+      setResult(data);
+    } catch (error) {
+      alert("Error fetching data. Try again.");
     }
     setLoading(false);
   };
 
-  const handleSubmit = () => {
-    if (contract) {
-      setMode('normal');
-      handleCheck(contract);
-    }
-  };
-
-  const handleRoulette = async () => {
-    setLoading(true);
-    setResponse(null);
-    setMode('roulette');
-
-    const randomToken = await fetchTrendingToken();
-    if (!randomToken) {
-      alert("Couldn't fetch trending tokens — try again soon.");
-      setLoading(false);
-      return;
-    }
-
-    setContract(randomToken);
-    await handleCheck(randomToken);
-  };
-
-
   return (
-    <div className="app dark">
-      <h1>🎰 Rug Pull Roulette</h1>
+    <div className="app">
+      <h1>🛡️ Rug Pull Early Warning System</h1>
 
       <input
         type="text"
+        placeholder="Enter Token Contract Address"
         value={contract}
-        placeholder="Paste a contract address..."
         onChange={(e) => setContract(e.target.value)}
       />
+      <button onClick={handleCheck} disabled={loading || !contract}>
+        {loading ? "Scanning..." : "Check Risk Score"}
+      </button>
 
-      <div className="btn-group">
-        <button onClick={handleSubmit}>Check Risk Score</button>
-        <button onClick={handleRoulette}>Spin the Rug Wheel 🎯</button>
-      </div>
-
-      {loading && (
-        <div className="loading">Spinning... 🌀</div>
-      )}
-
-      {response && (
-        <div className="report">
-          <h2 className="risk">
-            {mode === 'roulette' ? '🎲 You Rolled:' : 'CRITICAL RISK:'} {response.risk_score}%
+      {result && (
+        <div className="result">
+          <h2 className="risk-score">
+            🔴 CRITICAL RISK: <strong>{result.risk_score}%</strong>
           </h2>
-          <ul>
-            {Object.values(response.reasons).map((reason, idx) => (
-              <li key={idx}>⚠️ {reason}</li>
+
+          <div className="warnings">
+            {Object.entries(result.reasons).map(([key, val]) => (
+              <div key={key} className="warning-box">
+                <span role="img" aria-label="warning">⚠️</span> {val}
+              </div>
             ))}
-          </ul>
+          </div>
 
           <div className="action-box">
             <h3>🛑 What to Do</h3>
-            <p>{response.actionable[0]}</p>
+            <ul>
+              {result.actionable.map((action, i) => (
+                <li key={i}>
+                  {action.includes("https://") ? (
+                    <a href={action} target="_blank" rel="noopener noreferrer">
+                      {action}
+                    </a>
+                  ) : (
+                    action
+                  )}
+                </li>
+              ))}
+            </ul>
+            <div className="buttons">
+              <a
+                href={`https://etherscan.io/address/${result.contract}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+              >
+                🔍 View on Etherscan
+              </a>
+              <a
+                href="https://chainabuse.com/submit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-danger"
+              >
+                🚨 Report Scam
+              </a>
+            </div>
           </div>
 
-          <div className="footer-info">
-            <p>📊 {response.similar_scams[0]}</p>
-          </div>
+          {result.similar_scams && result.similar_scams.length > 0 && (
+            <div className="similar-scams">
+              <h3>📊 Similar Past Scams</h3>
+              <ul>
+                {result.similar_scams.map((scam, i) => (
+                  <li key={i}>{scam}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
