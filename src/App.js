@@ -1,6 +1,24 @@
 import React, { useState } from 'react';
 import './App.css';
 
+const fetchTrendingToken = async () => {
+  try {
+    const res = await fetch("https://public-api.dextools.io/trending/pairs?chain=ether&interval=1h");
+    const data = await res.json();
+    const pairs = data.data || [];
+
+    if (pairs.length === 0) return null;
+
+    // Random pair, get token contract address
+    const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
+    return randomPair.token.contract;
+  } catch (err) {
+    console.error("Failed to fetch trending token:", err);
+    return null;
+  }
+};
+
+
 function App() {
   const [contract, setContract] = useState('');
   const [response, setResponse] = useState(null);
@@ -33,17 +51,22 @@ function App() {
     }
   };
 
-  const handleRoulette = () => {
-    const rugTokens = [
-      "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE", // Shiba
-      "0x63d2d1ca2d3bb8da2d477db0f0e6555d65bf89c5", // ScamX
-      "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // Fake Rug
-    ];
-    const randomToken = rugTokens[Math.floor(Math.random() * rugTokens.length)];
-    setContract(randomToken);
+  const handleRoulette = async () => {
+    setLoading(true);
+    setResponse(null);
     setMode('roulette');
-    handleCheck(randomToken);
+
+    const randomToken = await fetchTrendingToken();
+    if (!randomToken) {
+      alert("Couldn't fetch trending tokens — try again soon.");
+      setLoading(false);
+      return;
+    }
+
+    setContract(randomToken);
+    await handleCheck(randomToken);
   };
+
 
   return (
     <div className="app dark">
