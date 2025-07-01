@@ -1,103 +1,89 @@
-import React, { useState } from "react";
-import "./App.css";
+import React, { useState } from 'react';
+import './App.css';
 
 function App() {
-  const [contract, setContract] = useState("");
-  const [result, setResult] = useState(null);
+  const [contract, setContract] = useState('');
+  const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState('normal'); // 'normal' or 'roulette'
 
-  const handleCheck = async () => {
+  const backendUrl = 'https://rugpull-backend.onrender.com/analyze';
+
+  const handleCheck = async (target) => {
     setLoading(true);
-    setResult(null);
+    setResponse(null);
     try {
-      //const res = await fetch("http://127.0.0.1:5003/analyze", {
-      const res = await fetch("https://rugpull-backend.onrender.com/analyze", {
-
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contract }),
+      const res = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contract: target }),
       });
       const data = await res.json();
-      setResult(data);
-    } catch (error) {
-      alert("Error fetching data. Try again.");
+      setResponse(data);
+    } catch (err) {
+      alert("Failed to fetch — backend might be sleeping or down.");
     }
     setLoading(false);
   };
 
+  const handleSubmit = () => {
+    if (contract) {
+      setMode('normal');
+      handleCheck(contract);
+    }
+  };
+
+  const handleRoulette = () => {
+    const rugTokens = [
+      "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE", // Shiba
+      "0x63d2d1ca2d3bb8da2d477db0f0e6555d65bf89c5", // ScamX
+      "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef", // Fake Rug
+    ];
+    const randomToken = rugTokens[Math.floor(Math.random() * rugTokens.length)];
+    setContract(randomToken);
+    setMode('roulette');
+    handleCheck(randomToken);
+  };
+
   return (
-    <div className="app">
-      <h1>🛡️ Rug Pull Early Warning System</h1>
+    <div className="app dark">
+      <h1>🎰 Rug Pull Roulette</h1>
 
       <input
         type="text"
-        placeholder="Enter Token Contract Address"
         value={contract}
+        placeholder="Paste a contract address..."
         onChange={(e) => setContract(e.target.value)}
       />
-      <button onClick={handleCheck} disabled={loading || !contract}>
-        {loading ? "Scanning..." : "Check Risk Score"}
-      </button>
 
-      {result && (
-        <div className="result">
-          <h2 className="risk-score">
-            🔴 CRITICAL RISK: <strong>{result.risk_score}%</strong>
+      <div className="btn-group">
+        <button onClick={handleSubmit}>Check Risk Score</button>
+        <button onClick={handleRoulette}>Spin the Rug Wheel 🎯</button>
+      </div>
+
+      {loading && (
+        <div className="loading">Spinning... 🌀</div>
+      )}
+
+      {response && (
+        <div className="report">
+          <h2 className="risk">
+            {mode === 'roulette' ? '🎲 You Rolled:' : 'CRITICAL RISK:'} {response.risk_score}%
           </h2>
-
-          <div className="warnings">
-            {Object.entries(result.reasons).map(([key, val]) => (
-              <div key={key} className="warning-box">
-                <span role="img" aria-label="warning">⚠️</span> {val}
-              </div>
+          <ul>
+            {Object.values(response.reasons).map((reason, idx) => (
+              <li key={idx}>⚠️ {reason}</li>
             ))}
-          </div>
+          </ul>
 
           <div className="action-box">
             <h3>🛑 What to Do</h3>
-            <ul>
-              {result.actionable.map((action, i) => (
-                <li key={i}>
-                  {action.includes("https://") ? (
-                    <a href={action} target="_blank" rel="noopener noreferrer">
-                      {action}
-                    </a>
-                  ) : (
-                    action
-                  )}
-                </li>
-              ))}
-            </ul>
-            <div className="buttons">
-              <a
-                href={`https://etherscan.io/address/${result.contract}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary"
-              >
-                🔍 View on Etherscan
-              </a>
-              <a
-                href="https://chainabuse.com/submit"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-danger"
-              >
-                🚨 Report Scam
-              </a>
-            </div>
+            <p>{response.actionable[0]}</p>
           </div>
 
-          {result.similar_scams && result.similar_scams.length > 0 && (
-            <div className="similar-scams">
-              <h3>📊 Similar Past Scams</h3>
-              <ul>
-                {result.similar_scams.map((scam, i) => (
-                  <li key={i}>{scam}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div className="footer-info">
+            <p>📊 {response.similar_scams[0]}</p>
+          </div>
         </div>
       )}
     </div>
